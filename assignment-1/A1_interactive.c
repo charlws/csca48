@@ -25,8 +25,20 @@
  */
 
 #include "MDB-c.c"  // <--- This will import your code so we can
-                    //	use your solution to create a linked
-                    //	list of movie reviews for testing!
+//	use your solution to create a linked
+//	list of movie reviews for testing!
+
+void printNames(ReviewNode *movie) {
+    // Prints out names of cast members for this movie
+    CastList *p;
+    if (movie == NULL || movie->review.cast == NULL) return;
+    p = movie->review.cast;
+    printf("The cast for this movie are:\n");
+    while (p != NULL) {
+        printf("Cast Member: %s, Salary: %f\n", p->name, p->salary);
+        p = p->next;
+    }
+}
 
 /**
  * Reads a movie's name, title, and year from the terminal.
@@ -41,8 +53,7 @@
  *      an allocated char buffer (of length MAX_STR_LEN) in which the movie's studio will be stored
  *  - year: an allocated integer buffer in which the movie's year will be stored
  */
-void getTitleStudioYear(char title[MAX_STR_LEN], char studio[MAX_STR_LEN], int *year)
-{
+void getTitleStudioYear(char title[MAX_STR_LEN], char studio[MAX_STR_LEN], int *year) {
     printf("Please enter the movie's title:\n");
     fgets(title, MAX_STR_LEN, stdin);
     printf("Please enter the movie's studio:\n");
@@ -63,8 +74,7 @@ void getTitleStudioYear(char title[MAX_STR_LEN], char studio[MAX_STR_LEN], int *
  *      an allocated floating point buffer in which the movie's Box Office earnings will be stored
  *  - studio: an allocated integer buffer in which the movie's review score will be stored
  */
-void getBOtotalScore(float *BO_total, int *score)
-{
+void getBOtotalScore(float *BO_total, int *score) {
     printf("Please enter the Box Office total:\n");
     scanf("%f", BO_total);
     getchar();
@@ -73,8 +83,7 @@ void getBOtotalScore(float *BO_total, int *score)
     getchar();
 }
 
-int main()
-{
+int main() {
     ReviewNode *MDB_head = NULL;
     ReviewNode *temp = NULL;
     int choice = 0;
@@ -85,8 +94,7 @@ int main()
     float BO_total, salary;
     int score;
 
-    while (true)
-    {
+    while (true) {
         printf("Please choose one of the following options:\n");
         printf("1 - Insert a new movie review.\n");
         printf("2 - Search for a movie review.\n");
@@ -103,78 +111,57 @@ int main()
         getchar();
 
         // Read in review information from terminal where needed.
-        if (choice >= 1 && choice <= 4)
-        {
+        if (choice >= 1 && choice <= 4) {
             getTitleStudioYear(title, studio, &year);
         }
-        if (choice == 1 || choice == 3)
-        {
+        if (choice == 1 || choice == 3) {
             getBOtotalScore(&BO_total, &score);
         }
-        if (choice == 1)
-        {
+        if (choice == 1) {
             MDB_head = insertMovieReview(title, studio, year, BO_total, score, MDB_head);
-        }
-        else if (choice == 2)
-        {
+        } else if (choice == 2) {
             temp = findMovieReview(title, studio, year, MDB_head);
-            if (temp != NULL)
-            {
+            if (temp != NULL) {
                 printf("Found the query movie:\n");
                 printf("It had a box office total of %f\n", temp->review.BO_total);
                 printf("And has a score of %d\n", temp->review.score);
-            }
-            else
-            {
+            } else {
                 printf("No such movie in the current list\n");
             }
-        }
-        else if (choice == 3)
-        {
+        } else if (choice == 3) {
             updateMovieReview(title, studio, year, BO_total, score, MDB_head);
-        }
-        else if (choice == 4)
-        {
+        } else if (choice == 4) {
             MDB_head = deleteMovieReview(title, studio, year, MDB_head);
-        }
-        else if (choice == 5)
-        {
-            printMovieReviews(MDB_head);
-        }
-        else if (choice == 6)
-        {
+        } else if (choice == 5) {
+            float ret = printMovieReviews(MDB_head);
+            printf("Total box office: %f\n", ret);
+        } else if (choice == 6) {
             printf("Please enter the name of the studio you want to list movies for:\n");
             fgets(studio, MAX_STR_LEN, stdin);
-            queryReviewsByStudio(studio, MDB_head);
-        }
-        else if (choice == 7)
-        {
+            float ret = queryReviewsByStudio(studio, MDB_head);
+            printf("Total box office: %f\n", ret);
+        } else if (choice == 7) {
             printf("Enter the minimum score to be used to search for movies:\n");
             scanf("%d", &score);
             getchar();
-            queryReviewsByScore(score, MDB_head);
-        }
-        else if (choice == 8)
-        {
+            float ret = queryReviewsByScore(score, MDB_head);
+            printf("Total box office: %f\n", ret);
+        } else if (choice == 8) {
             printf("Sorting movies by title!\n");
             MDB_head = sortReviewsByTitle(MDB_head);
-        }
-        else if (choice == 9)
-        {
+        } else if (choice == 9) {
             getTitleStudioYear(title, studio, &year);
             printf("Enter the name of the actor you want to add to this movie:\n");
             fgets(name, MAX_STR_LEN, stdin);
-	    printf("Enter the salary for this cast member:\n");
+            printf("Enter the salary for this cast member:\n");
             scanf("%f", &salary);
             getchar();
             insertCastMember(title, studio, year, MDB_head, name, salary);
             printNames(findMovieReview(title, studio, year, MDB_head));
-        }
-        else if (choice == 10)
-        {
-	    whosTheStar(MDB_head);
-        }
-        else if (choice == 11) break;
+        } else if (choice == 10) {
+            whosTheStar(MDB_head);
+        } else if (choice == 11)
+            break;
     }
 
     MDB_head = deleteReviewList(MDB_head);
