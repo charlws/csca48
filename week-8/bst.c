@@ -5,6 +5,7 @@ typedef struct nodeBST {
     int value;
     struct nodeBST *left;
     struct nodeBST *right;
+    int height;
 } Node;
 
 Node *createNode(int value) {
@@ -18,8 +19,38 @@ Node *createNode(int value) {
     node->value = value;
     node->left = NULL;
     node->right = NULL;
+    node->height = 0;
 
     return node;
+}
+
+int getHeight(Node *node){
+    if(node == NULL) return -1;
+    int leftHeight = node->left != NULL ? node->left->height : -1;
+    int rightHeight = node->right != NULL ? node->right->height : -1;
+    return leftHeight > rightHeight ? leftHeight + 1 : rightHeight + 1;
+}
+
+void setHeight(Node *node){
+    node->height = getHeight(node);
+}
+
+Node *rotateLeft(Node *x){
+    Node *y = x->right;
+    x->right = y->left;
+    y->left = x;
+    setHeight(x);
+    setHeight(y);
+    return y;
+}
+
+Node *rotateRight(Node *y){
+    Node *x = y->left;
+    y->left = x->right;
+    x->right = y;
+    setHeight(y);
+    setHeight(x);
+    return x;
 }
 
 // Node *insertNode(Node *root, Node *node){
@@ -55,6 +86,20 @@ Node *insertNode(Node *root, Node *node) {
         root->left = insertNode(root->left, node);
     else
         root->right = insertNode(root->right, node);
+    
+    int hdiff = getHeight(root->left) - getHeight(root->right);
+    if(hdiff > 1){
+        // left heavy
+        if(node->value > root->left->value) // bended chain (need to rotate (the only) child of root first)
+            root->left = rotateLeft(root->left);
+        root = rotateRight(root);
+    } else if(hdiff < -1){
+        // right heavy
+        if(node->value < root->right->value) // bended chain (need to rotate (the only) child of root first)
+            root->right = rotateRight(root->right);
+        root = rotateLeft(root);
+    }
+    setHeight(root);
 
     return root;
 }
@@ -69,7 +114,7 @@ Node *searchNode(Node *root, int value, int log, int depth) {
     if (log) printf("%d -> ", root->value);
 
     if (root->value == value) {
-        if (log) printf("FOUND (Depth = %d)!\n", depth);
+        if (log) printf("FOUND (Depth = %d / Height = %d)!\n", depth, root->height);
         return root;
     }
 
@@ -103,15 +148,20 @@ Node *deleteNode(Node *root, int value) {
             root->value = rightSubtreeMin->value;
             // go into right tree to delete that promoted node
             root->right = deleteNode(root->right, rightSubtreeMin->value);
+            setHeight(root);
             return root;
         }
     } else if (value < root->value) {
         root->left = deleteNode(root->left, value);
+        setHeight(root);
         return root;
     } else {
         root->right = deleteNode(root->right, value);
+        setHeight(root);
         return root;
     }
+
+    // TODO: Add balance here
 }
 
 int main() {
