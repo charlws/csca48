@@ -133,8 +133,11 @@ BST_Node *BST_insert(BST_Node *root, BST_Node *new_node) {
     }
 
     if (root->key == new_node->key) {
-        printf("Duplicate node requested (bar:index)=%d,%lf, it was ignored\n", new_node->bar, new_node->index);
-        return root;
+        // per piazza clarification, we shift the key a bit until a find a valid key
+        new_node->key = new_node->key + 0.000001;
+        return BST_insert(root, new_node);
+        // printf("Duplicate node requested (bar:index)=%d,%lf, it was ignored\n", new_node->bar, new_node->index);
+        // return root;
     }
 
     if (new_node->key < root->key) {

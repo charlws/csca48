@@ -35,9 +35,9 @@
 #define USE_PIANO     1
 #define USE_CELLO     0
 #define USE_GUITAR    0
-#define USE_TRUMPET   0
+#define USE_TRUMPET   1
 #define PI 3.1415926535
-#define SP_ADJ 1                // Speed adjustment, 1.0 standard speed
+#define SP_ADJ 1.25                // Speed adjustment, 1.0 standard speed
 #define FS 44100			    // Defines the sampling frequency for note generation
                                 // in Hz. that means, we will generate 44100 samples
                                 // for each note per second. This is the number of
@@ -372,7 +372,7 @@ double KS_string_sample(note *n)
 
  double output, new_input;
  double alpha=n->freq/5000.0;
- double discount;
+//  double discount;
 
  if (alpha<.8) alpha=.8;
  if (alpha>.9995) alpha=.9995;
